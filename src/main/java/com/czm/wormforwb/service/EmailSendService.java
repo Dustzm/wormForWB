@@ -2,6 +2,6 @@ package com.czm.wormforwb.service;
 
 public interface EmailSendService {
 
-    public Boolean sendEmail(String title, String content);
+    public Boolean sendEmail(String title, String content, String getterEmail);
 
 }

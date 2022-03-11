@@ -38,13 +38,10 @@ public class WBQueryServiceImpl implements WBQueryService {
     @Value("${sina.dynamic.count}")
     private String dynamicCount;
 
-    @Value("${sina.monitor.uid}")
-    private String monitorUids;
-
     @Resource
     RestTemplate restTemplate;
 
-    private static BlockingDeque<String> midQueue = new LinkedBlockingDeque<>(51);
+    private static final BlockingDeque<String> midQueue = new LinkedBlockingDeque<>(51);
 
 
     /**
@@ -53,9 +50,9 @@ public class WBQueryServiceImpl implements WBQueryService {
      * @date 2022/3/10 15:53
      **/
     @Override
-    public List<DynamicResVO> monitorDynamic() {
+    public List<DynamicResVO> monitorDynamic(String monitorUids) {
         List<DynamicResVO> res = new ArrayList<>();
-        List<String> uidList = Arrays.asList(monitorUids.split(","));
+        String[] uidList = monitorUids.split(",");
         for(String uid : uidList){
             DynamicParamDTO paramDTO = getUpdatedMid(uid);
             if(paramDTO != null){

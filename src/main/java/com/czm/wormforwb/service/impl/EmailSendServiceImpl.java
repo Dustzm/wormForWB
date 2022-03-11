@@ -37,12 +37,9 @@ public class EmailSendServiceImpl implements EmailSendService {
     @Value("${email.sender.authorization.code}")
     private String authorizationCode;
 
-    @Value("${email.getter.address}")
-    private String getterEmail;
-
 
     @Override
-    public Boolean sendEmail(String title, String content) {
+    public Boolean sendEmail(String title, String content, String getterEmail) {
 
         log.debug("------邮件服务开始------");
 

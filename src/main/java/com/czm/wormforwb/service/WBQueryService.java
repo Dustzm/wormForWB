@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface WBQueryService {
 
-    List<DynamicResVO> monitorDynamic();
+    List<DynamicResVO> monitorDynamic(String monitorUids);
 
 }

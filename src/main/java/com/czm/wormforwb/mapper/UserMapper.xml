@@ -1,0 +1,18 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.czm.wormforwb.mapper.UserMapper">
+
+    <select id="queryAllUserInfo" resultType="com.czm.wormforwb.pojo.User">
+        select u.uid,u.name,u.email,GROUP_CONCAT(s.sub_id ) as subIds
+        from public_user u
+        left join public_user_sub_info s on u.uid = s.uid
+        where u.active = 1
+        GROUP BY u.uid
+    </select>
+
+    <select id="querySubIdByUser" resultType="java.lang.String">
+        select sub_id from public_user_sub_info
+        where uid = #{uid} and del = 0
+    </select>
+
+
+</mapper>

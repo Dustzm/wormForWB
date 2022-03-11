@@ -1,7 +1,9 @@
 package com.czm.wormforwb.controller;
 
+import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
+import com.czm.wormforwb.service.UserService;
 import com.czm.wormforwb.service.WBQueryService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,16 +27,25 @@ public class TestController {
     @Resource
     private WBQueryService wbQueryService;
 
+    @Resource
+    private UserService userService;
+
     @GetMapping("sendemail")
     public String sendemail(){
-        if(emailSendService.sendEmail("hello email","测试邮件")){
-            return "ok";
-        }
+//        if(emailSendService.sendEmail("hello email","测试邮件")){
+//            return "ok";
+//        }
         return "no";
     }
 
     @GetMapping("wb")
     public List<DynamicResVO> wb(){
-        return wbQueryService.monitorDynamic();
+        //return wbQueryService.monitorDynamic();
+        return null;
+    }
+
+    @GetMapping("user")
+    public List<User> user(){
+        return userService.getAllUser();
     }
 }
