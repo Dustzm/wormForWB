@@ -20,6 +20,8 @@ public class DateUtils {
 
     private static final SimpleDateFormat normalFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US);
 
+    private static final SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd");
+
     /**
      * 中国标准时间转换为常用时间格式
      * @author Slience
@@ -33,5 +35,14 @@ public class DateUtils {
             log.error("时间转换抛出异常：" + e.getMessage() + "\n" + e.getStackTrace());
             return null;
         }
+    }
+
+    /**
+     * 获取当前日期作为日志文件夹名
+     * @return String 当前日期
+     **/
+    public static String getNowDate(){
+        Date today = new Date();
+        return fileFormat.format(today);
     }
 }
