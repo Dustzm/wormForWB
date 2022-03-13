@@ -1,16 +1,19 @@
 package com.czm.wormforwb.controller;
 
+import com.czm.wormforwb.mapper.UserDynamicLogMapper;
 import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
 import com.czm.wormforwb.service.UserService;
 import com.czm.wormforwb.service.WBQueryService;
+import com.czm.wormforwb.utils.DBUtils;
 import com.czm.wormforwb.utils.FileUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -30,6 +33,9 @@ public class TestController {
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private UserDynamicLogMapper userDynamicLogMapper;
 
     @GetMapping("sendemail")
     public String sendemail(){
@@ -53,5 +59,21 @@ public class TestController {
     @GetMapping("file")
     public String file(){
         return FileUtils.createDir(FileUtils.getLogDirPathToday()).toString();
+    }
+
+    @GetMapping("db")
+    public Integer db(){
+        DynamicResVO dynamic1 = new DynamicResVO();
+        dynamic1.setMid("111");
+        dynamic1.setPageUrl("http://www.baidu.com");
+        dynamic1.setCreateTime("2022/03/13 15:00:00");
+        DynamicResVO dynamic2 = new DynamicResVO();
+        dynamic2.setMid("222");
+        dynamic2.setPageUrl("http://test.com");
+        dynamic2.setCreateTime("2022/03/01 12:01:11");
+        List<DynamicResVO> dynamicResVOList = new ArrayList<>();
+        dynamicResVOList.add(dynamic1);
+        dynamicResVOList.add(dynamic2);
+        return userDynamicLogMapper.insertDynamicLogBatch(dynamicResVOList, DBUtils.getLogTableName(),"test01");
     }
 }

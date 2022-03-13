@@ -3,11 +3,8 @@ package com.czm.wormforwb.utils;
 import com.czm.wormforwb.pojo.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+
 
 /**
  * 文件与文件夹工具类
@@ -39,12 +36,11 @@ public class FileUtils {
      * @return String 统一日志文件路径加当前日期
      **/
     public static String getLogDirPathToday(){
-        System.out.println("111:" + unifiedLogPath);
         StringBuilder res = new StringBuilder(unifiedLogPath);
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append(DateUtils.getNowDate()).toString();
+        return res.append(DateUtils.getNowDateForFile()).toString();
     }
 
     /**
@@ -52,8 +48,8 @@ public class FileUtils {
      * @param user 用户
      * @return String 用户文件夹名
      **/
-    public static String getLogDirForUser(User user){
-        return getLogDirPathToday() + user.getName() + "&" + user.getUid();
+    public static String getLogDirPathForUser(User user){
+        return getLogDirPathToday() + "/" + user.getName() + "&" + user.getUid();
     }
 
     @Value("${unified.log.path}")

@@ -1,11 +1,13 @@
 package com.czm.wormforwb.task;
 
 import com.alibaba.fastjson.JSONObject;
+import com.czm.wormforwb.mapper.UserDynamicLogMapper;
 import com.czm.wormforwb.mapper.UserMapper;
 import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
 import com.czm.wormforwb.service.WBQueryService;
+import com.czm.wormforwb.utils.DBUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -31,8 +33,11 @@ public class WBDynamicMonitorTask {
     @Resource
     private UserMapper userMapper;
 
+    @Resource
+    private UserDynamicLogMapper userDynamicLogMapper;
+
     //默认2分钟执行一次
-    @Scheduled(cron = "0 */1 * * * ?")
+    //@Scheduled(cron = "0 */1 * * * ?")
     public void monitor(){
         log.debug("------微博动态监视任务开始------");
         List<User> users = userMapper.queryAllUserInfo();
@@ -58,6 +63,8 @@ public class WBDynamicMonitorTask {
             }
             log.debug("------邮件内容:" + emailContent);
             emailSendService.sendEmail(user.getName() + ",你的心头好有更新哦～",emailContent.toString(), user.getEmail());
+            log.debug("------将动态内容记录至数据库------");
+            userDynamicLogMapper.insertDynamicLogBatch(dynamicResVOS, DBUtils.getLogTableName(),user.getUid());
         }else{
             log.debug("未检测到更新，休眠中。。。");
         }

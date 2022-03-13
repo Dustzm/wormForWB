@@ -22,6 +22,8 @@ public class DateUtils {
 
     private static final SimpleDateFormat fileFormat = new SimpleDateFormat("yyyyMMdd");
 
+    private static final SimpleDateFormat logDBFormat = new SimpleDateFormat("yyyyMM");
+
     /**
      * 中国标准时间转换为常用时间格式
      * @author Slience
@@ -41,8 +43,27 @@ public class DateUtils {
      * 获取当前日期作为日志文件夹名
      * @return String 当前日期
      **/
-    public static String getNowDate(){
+    public static String getNowDateForFile(){
         Date today = new Date();
         return fileFormat.format(today);
+    }
+
+    /**
+     * 获取当前月份作为日志表分表名
+     * @return String 当前日期
+     **/
+    public static String getNowDateForLogDB(){
+        return logDBFormat.format(new Date());
+    }
+
+    /**
+     * 获取次月日期作为日志分表名
+     * @return String 次月日期
+     **/
+    public static String getNextMonthForLogDB(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.MONTH,1);
+        return logDBFormat.format(calendar.getTime());
     }
 }
