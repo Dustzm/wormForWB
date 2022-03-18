@@ -16,7 +16,7 @@ import java.util.Locale;
 @Slf4j
 public class DateUtils {
 
-    private static final SimpleDateFormat strFormat = new SimpleDateFormat("yyyy/MM/dd hh:mm:ss");
+    private static final SimpleDateFormat strFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     private static final SimpleDateFormat normalFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy", Locale.US);
 
@@ -46,6 +46,13 @@ public class DateUtils {
     public static String getNowDateForFile(){
         Date today = new Date();
         return fileFormat.format(today);
+    }
+
+    public static String getYesterDayForFile(){
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new Date());
+        calendar.add(Calendar.DATE,-1);
+        return fileFormat.format(calendar.getTime());
     }
 
     /**

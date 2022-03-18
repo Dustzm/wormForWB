@@ -49,8 +49,10 @@ public class DBUtils {
                 "` (\n" +
                 "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',\n" +
                 "  `uid` char(30) DEFAULT NULL COMMENT '用户id',\n" +
-                "  `mid` char(30) DEFAULT NULL COMMENT '动态id',\n" +
-                "  `page_url` varchar(50) DEFAULT NULL COMMENT '原页面url',\n" +
+                "  `m_name` varchar(50) DEFAULT NULL COMMENT '博主名称',\n" +
+                "  `mid` char(30) DEFAULT NULL COMMENT '动态mid',\n" +
+                "  `bid` char(10) DEFAULT NULL COMMENT '动态bid',\n" +
+                "  `page_url` varchar(255) DEFAULT NULL COMMENT '原页面url',\n" +
                 "  `create_time` datetime DEFAULT NULL COMMENT '创建时间',\n" +
                 "  `del` tinyint(1) DEFAULT NULL COMMENT '删除标记',\n" +
                 "  PRIMARY KEY (`id`)\n" +

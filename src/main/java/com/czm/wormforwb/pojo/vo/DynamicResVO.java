@@ -13,6 +13,9 @@ public class DynamicResVO {
     //mid
     private String mid;
 
+    //bid
+    private String bid;
+
     //博主名称
     private String name;
 

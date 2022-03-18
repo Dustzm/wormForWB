@@ -37,7 +37,7 @@ public class WBDynamicMonitorTask {
     private UserDynamicLogMapper userDynamicLogMapper;
 
     //默认2分钟执行一次
-    //@Scheduled(cron = "0 */1 * * * ?")
+    @Scheduled(cron = "0 */5 * * * ?")
     public void monitor(){
         log.debug("------微博动态监视任务开始------");
         List<User> users = userMapper.queryAllUserInfo();

@@ -2,12 +2,20 @@
 <mapper namespace="com.czm.wormforwb.mapper.UserDynamicLogMapper">
     <insert id="insertDynamicLogBatch" parameterType="com.czm.wormforwb.pojo.vo.DynamicResVO" useGeneratedKeys="false">
         INSERT INTO ${logTable}
-        (uid, mid, page_url, create_time, del)
+        (uid, mid, m_name, bid, page_url, create_time, del)
         VALUES
         <foreach collection="dynamicResVOs" item="model" separator=",">
-            (#{uid}, #{model.mid}, #{model.pageUrl},#{model.createTime}, 1)
+            (#{uid}, #{model.mid}, #{model.name}, #{model.bid}, #{model.pageUrl}, #{model.createTime}, 0)
         </foreach>
     </insert>
+
+    <select id="queryDynamicLogYesterdayByUid" resultType="com.czm.wormforwb.pojo.DynamicLog">
+        SELECT uid, mid, m_name as name, bid, page_url, create_time
+        FROM ${logTable}
+        WHERE uid = #{uid} AND
+              DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY),'%Y-%m-%d') AND
+              del = 0
+    </select>
 
 
 </mapper>

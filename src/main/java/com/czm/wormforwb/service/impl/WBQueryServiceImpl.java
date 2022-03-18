@@ -2,9 +2,13 @@ package com.czm.wormforwb.service.impl;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.czm.wormforwb.mapper.UserDynamicLogMapper;
+import com.czm.wormforwb.pojo.DynamicLog;
+import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.dto.DynamicParamDTO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.WBQueryService;
+import com.czm.wormforwb.utils.DBUtils;
 import com.czm.wormforwb.utils.DateUtils;
 import com.czm.wormforwb.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -34,12 +38,18 @@ public class WBQueryServiceImpl implements WBQueryService {
     @Value("${sina.longtext.port}")
     private String contentUrl;
 
+    @Value("${sina.dynamic.port}")
+    private String bidUrl;
+
     //每次获取的动态数量
     @Value("${sina.dynamic.count}")
     private String dynamicCount;
 
     @Resource
     RestTemplate restTemplate;
+
+    @Resource
+    UserDynamicLogMapper userDynamicLogMapper;
 
     private static final BlockingDeque<String> midQueue = new LinkedBlockingDeque<>(51);
 
@@ -65,12 +75,47 @@ public class WBQueryServiceImpl implements WBQueryService {
         return res;
     }
 
+    @Override
+    public List<String> getPicsByBid(String bid) {
+        StringBuilder wbUrl = new StringBuilder(bidUrl);
+        log.debug("------微博动态详情接口调用开始------");
+        wbUrl.append("?").append("id=").append(bid);
+        log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
+        String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
+        log.debug("------微博动态详情接口调用成功：" + response);
+        List<String> res = new ArrayList<>();
+        JSONObject rsJson = JSONObject.parseObject(response);
+        Integer isOk = rsJson.getInteger("ok");
+        if(1 == isOk){
+            JSONObject dataJson = rsJson.getJSONObject("data");
+            JSONArray pics = dataJson.getJSONArray("pics");
+            if(pics == null||pics.size() == 0){
+                log.debug("------该微博动态:" + bid + "详情无图片内容------");
+                return res;
+            }
+            for(Object pic : pics){
+                JSONObject picJson = JSONObject.parseObject(JSONObject.toJSONString(pic));
+                res.add(picJson.getJSONObject("large").getString("url"));
+            }
+            log.debug("------图片url封装完毕：" + JSONObject.toJSONString(res));
+            return res;
+        }
+        log.warn("------微博动态详情接口请求异常------");
+        return res;
+    }
+
+    @Override
+    public List<DynamicLog> getDynamicLogYesterday(User user) {
+        return userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(),user.getUid());
+    }
+
     /**
      * 根据最新mid获取动态内容
      * @author Slience
      * @date 2022/3/10 14:56
      **/
-    private DynamicResVO getDynamicContent(DynamicParamDTO paramDTO){
+    @Override
+    public DynamicResVO getDynamicContent(DynamicParamDTO paramDTO){
         StringBuilder wbUrl = new StringBuilder(contentUrl);
         log.debug("------微博动态内容接口调用开始------");
         wbUrl.append("?").append("id=").append(paramDTO.getMid());
@@ -88,6 +133,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             dynamicResVO.setAttitudesCount(dataJson.getInteger("attitudes_count"));
             dynamicResVO.setMid(paramDTO.getMid());
             dynamicResVO.setName(paramDTO.getName());
+            dynamicResVO.setBid(paramDTO.getBid());
             dynamicResVO.setPageUrl(paramDTO.getPageUrl());
             dynamicResVO.setCreateTime(paramDTO.getCreateTime());
             log.debug("------微博动态内容接口封装完毕，结果：" + JSONObject.toJSONString(dynamicResVO));
@@ -128,6 +174,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             //获取动态mid和发布时间，以查询动态全文
             DynamicParamDTO paramDTO = new DynamicParamDTO();
             paramDTO.setMid(card.getJSONObject("mblog").getString("mid"));
+            paramDTO.setBid(card.getJSONObject("mblog").getString("bid"));
             paramDTO.setCreateTime(DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at")));
             paramDTO.setName(card.getJSONObject("mblog").getJSONObject("user").getString("screen_name"));
             paramDTO.setPageUrl(card.getString("scheme"));
