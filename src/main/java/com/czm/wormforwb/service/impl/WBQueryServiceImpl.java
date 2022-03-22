@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.czm.wormforwb.mapper.UserDynamicLogMapper;
 import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.dto.DynamicParamDTO;
+import com.czm.wormforwb.pojo.vo.DynamicFlagVO;
 import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.WBQueryService;
@@ -59,9 +60,12 @@ public class WBQueryServiceImpl implements WBQueryService {
      **/
     @Override
     public void initQueue(){
-        List<String> mids = userDynamicLogMapper.queryUpdatedMids(DBUtils.getLogTableName());
-        log.debug("------初始化队列，今日各用户已监控的最新mid:" + mids + "，添加至队列");
-        midQueue.addAll(mids);
+        midQueue.clear();
+        List<DynamicFlagVO> mids = userDynamicLogMapper.queryUpdatedMids(DBUtils.getLogTableName());
+        mids.forEach(mid->{
+            midQueue.add(mid.getFlag());
+        });
+        log.debug("------初始化队列，今日各用户已监控的最新mid:" + JSONObject.toJSONString(mids) + "，添加至队列:" + midQueue);
     }
 
     /**
@@ -70,15 +74,18 @@ public class WBQueryServiceImpl implements WBQueryService {
      * @date 2022/3/10 15:53
      **/
     @Override
-    public List<DynamicResVO> monitorDynamic(String monitorUids) {
+    public List<DynamicResVO> monitorDynamic(String uid, String monitorUids) {
         List<DynamicResVO> res = new ArrayList<>();
         String[] uidList = monitorUids.split(",");
 
-        for(String uid : uidList){
-            DynamicParamDTO paramDTO = getUpdatedMid(uid);
+        for(String muid : uidList){
+            DynamicParamDTO paramDTO = getUpdatedMid(muid);
             if(paramDTO != null){
-                if(checkUpdated(paramDTO.getMid())){
-                    res.add(getDynamicContent(paramDTO));
+                if(checkUpdated(uid, paramDTO.getMid())){
+                    DynamicResVO dynamicResVO = getDynamicContent(paramDTO);
+                    if(dynamicResVO != null){
+                        res.add(dynamicResVO);
+                    }
                 }
             }
         }
@@ -148,28 +155,34 @@ public class WBQueryServiceImpl implements WBQueryService {
         log.debug("------微博动态内容接口调用开始------");
         wbUrl.append("?").append("id=").append(paramDTO.getMid());
         log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
-        String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
-        log.debug("------微博动态内容接口调用成功：" + response);
-        JSONObject rsJson = JSONObject.parseObject(response);
-        Integer isOk = rsJson.getInteger("ok");
-        if(1 == isOk){
-            JSONObject dataJson = rsJson.getJSONObject("data");
-            DynamicResVO dynamicResVO = new DynamicResVO();
-            dynamicResVO.setText(dataJson.getString("longTextContent"));
-            dynamicResVO.setRepostsCount(dataJson.getInteger("reposts_count"));
-            dynamicResVO.setCommentsCount(dataJson.getInteger("comments_count"));
-            dynamicResVO.setAttitudesCount(dataJson.getInteger("attitudes_count"));
-            dynamicResVO.setMid(paramDTO.getMid());
-            dynamicResVO.setName(paramDTO.getName());
-            dynamicResVO.setBid(paramDTO.getBid());
-            dynamicResVO.setPageUrl(paramDTO.getPageUrl());
-            dynamicResVO.setCreateTime(paramDTO.getCreateTime());
-            dynamicResVO.setPics(StringUtils.concatStringList(getPicsByBid(paramDTO.getBid())));
-            log.debug("------微博动态内容接口封装完毕，结果：" + JSONObject.toJSONString(dynamicResVO));
-            return dynamicResVO;
+        try{
+            String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
+            log.debug("------微博动态内容接口调用成功：" + response);
+            JSONObject rsJson = JSONObject.parseObject(response);
+            Integer isOk = rsJson.getInteger("ok");
+            if(1 == isOk){
+                JSONObject dataJson = rsJson.getJSONObject("data");
+                DynamicResVO dynamicResVO = new DynamicResVO();
+                dynamicResVO.setText(dataJson.getString("longTextContent"));
+                dynamicResVO.setRepostsCount(dataJson.getInteger("reposts_count"));
+                dynamicResVO.setCommentsCount(dataJson.getInteger("comments_count"));
+                dynamicResVO.setAttitudesCount(dataJson.getInteger("attitudes_count"));
+                dynamicResVO.setMid(paramDTO.getMid());
+                dynamicResVO.setName(paramDTO.getName());
+                dynamicResVO.setBid(paramDTO.getBid());
+                dynamicResVO.setPageUrl(paramDTO.getPageUrl());
+                dynamicResVO.setCreateTime(paramDTO.getCreateTime());
+                dynamicResVO.setPics(StringUtils.concatStringList(getPicsByBid(paramDTO.getBid())));
+                log.debug("------微博动态内容接口封装完毕，结果：" + JSONObject.toJSONString(dynamicResVO));
+                return dynamicResVO;
+            }
+            log.debug("------微博动态内容接口返回异常------");
+            return null;
+        }catch (Exception e){
+            log.error("------微博动态内容接口异常:{}",e);
+            return null;
         }
-        log.debug("------微博动态内容接口返回异常------");
-        return null;
+
     }
 
     /**
@@ -217,23 +230,23 @@ public class WBQueryServiceImpl implements WBQueryService {
      * @author Slience
      * @date 2022/3/10 16:53
      **/
-    private Boolean checkUpdated(String mid){
+    private Boolean checkUpdated(String uid,String mid) {
+        if (StringUtils.isBlank(uid) || StringUtils.isBlank(mid)) {
+            log.error("------mid或uid为空{},{}", uid, mid);
+            return false;
+        }
+        String mflag = uid + "&" + mid;
         log.debug("------当前内存队列大小：" + midQueue.size() + "\n包含值为：" + JSONObject.toJSONString(midQueue));
-        if(StringUtils.isNotBlank(mid)) {
-            if (!midQueue.contains(mid)) {
-                log.debug("midQueue不包含当前mid：" + mid + "，添加到队列中");
-                midQueue.add(mid);
-                if(midQueue.size() == 100){
-                    log.debug("内存队列容量到达50，依次删除最旧的id");
-                    midQueue.remove();
-                }
-                return true;
-            }else{
-                log.debug("midQueue包含当前mid：" + mid + "，不做更新操作");
-                return false;
+        if (!midQueue.contains(mflag)) {
+            log.debug("midQueue不包含当前mid：" + mflag + "，添加到队列中");
+            midQueue.add(mflag);
+            if (midQueue.size() == 100) {
+                log.debug("内存队列容量到达50，依次删除最旧的id");
+                midQueue.remove();
             }
-        }else{
-            log.warn("mid为空，不添加到队列");
+            return true;
+        } else {
+            log.debug("midQueue包含当前mflag：" + mflag + "，不做更新操作");
             return false;
         }
     }

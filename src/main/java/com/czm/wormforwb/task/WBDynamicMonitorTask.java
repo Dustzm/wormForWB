@@ -54,7 +54,7 @@ public class WBDynamicMonitorTask {
 
     private void execute(User user){
         StringBuilder emailContent = new StringBuilder();
-        List<DynamicResVO> dynamicResVOS = wbQueryService.monitorDynamic(user.getSubIds());
+        List<DynamicResVO> dynamicResVOS = wbQueryService.monitorDynamic(user.getUid(),user.getSubIds());
         if(dynamicResVOS.size() != 0){
             for(DynamicResVO dynamicRes : dynamicResVOS){
                 emailContent.append(getEmailContent(dynamicRes));

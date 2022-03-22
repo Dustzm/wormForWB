@@ -1,6 +1,7 @@
 package com.czm.wormforwb.mapper;
 
 import com.czm.wormforwb.pojo.DynamicLog;
+import com.czm.wormforwb.pojo.vo.DynamicFlagVO;
 import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -21,5 +22,5 @@ public interface UserDynamicLogMapper {
 
     List<String> queryMids(@Param("dynamicInfoTable") String dynamicInfoTable);
 
-    List<String> queryUpdatedMids(@Param("logTable") String logTable);
+    List<DynamicFlagVO> queryUpdatedMids(@Param("logTable") String logTable);
 }

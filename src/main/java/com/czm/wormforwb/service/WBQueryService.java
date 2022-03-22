@@ -12,7 +12,7 @@ public interface WBQueryService {
 
     void initQueue();
 
-    List<DynamicResVO> monitorDynamic(String monitorUids);
+    List<DynamicResVO> monitorDynamic(String uid, String monitorUids);
 
     List<String> getPicsByBid(String bid);
 
