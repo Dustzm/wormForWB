@@ -3,13 +3,14 @@ package com.czm.wormforwb.service.impl;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.czm.wormforwb.mapper.UserDynamicLogMapper;
-import com.czm.wormforwb.pojo.DynamicLog;
 import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.dto.DynamicParamDTO;
+import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.WBQueryService;
 import com.czm.wormforwb.utils.DBUtils;
 import com.czm.wormforwb.utils.DateUtils;
+import com.czm.wormforwb.utils.HttpUtils;
 import com.czm.wormforwb.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,8 +52,17 @@ public class WBQueryServiceImpl implements WBQueryService {
     @Resource
     UserDynamicLogMapper userDynamicLogMapper;
 
-    private static final BlockingDeque<String> midQueue = new LinkedBlockingDeque<>(51);
+    private static final BlockingDeque<String> midQueue = new LinkedBlockingDeque<>(101);
 
+    /**
+     * 初始化已获取的mid到队列中，防止系统重启后重复推送
+     **/
+    @Override
+    public void initQueue(){
+        List<String> mids = userDynamicLogMapper.queryUpdatedMids(DBUtils.getLogTableName());
+        log.debug("------初始化队列，今日各用户已监控的最新mid:" + mids + "，添加至队列");
+        midQueue.addAll(mids);
+    }
 
     /**
      * 获取当前最新动态内容
@@ -63,6 +73,7 @@ public class WBQueryServiceImpl implements WBQueryService {
     public List<DynamicResVO> monitorDynamic(String monitorUids) {
         List<DynamicResVO> res = new ArrayList<>();
         String[] uidList = monitorUids.split(",");
+
         for(String uid : uidList){
             DynamicParamDTO paramDTO = getUpdatedMid(uid);
             if(paramDTO != null){
@@ -75,6 +86,11 @@ public class WBQueryServiceImpl implements WBQueryService {
         return res;
     }
 
+    /**
+     * 将动态图片存至本地
+     * @param bid 动态bid
+     * @return String 图片url
+     **/
     @Override
     public List<String> getPicsByBid(String bid) {
         StringBuilder wbUrl = new StringBuilder(bidUrl);
@@ -95,7 +111,9 @@ public class WBQueryServiceImpl implements WBQueryService {
             }
             for(Object pic : pics){
                 JSONObject picJson = JSONObject.parseObject(JSONObject.toJSONString(pic));
-                res.add(picJson.getJSONObject("large").getString("url"));
+                String picUrl = picJson.getJSONObject("large").getString("url");
+                String[] picArray = picUrl.split("/");
+                res.add(HttpUtils.download(picUrl,picArray[picArray.length-1]));
             }
             log.debug("------图片url封装完毕：" + JSONObject.toJSONString(res));
             return res;
@@ -104,9 +122,19 @@ public class WBQueryServiceImpl implements WBQueryService {
         return res;
     }
 
+    /**
+     * 获取昨日动态日志
+     * @param user 用户实体
+     * @return List 日志列表
+     **/
     @Override
-    public List<DynamicLog> getDynamicLogYesterday(User user) {
-        return userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(),user.getUid());
+    public List<DynamicLogVO> getDynamicLogYesterday(User user) {
+        return userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(), DBUtils.getLogInfoTableName(), user.getUid());
+    }
+
+    @Override
+    public List<DynamicLogVO> getDynamicLogToday(User user) {
+        return userDynamicLogMapper.queryDynamicLogTodayByUid(DBUtils.getLogTableName(), DBUtils.getLogInfoTableName(), user.getUid());
     }
 
     /**
@@ -136,6 +164,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             dynamicResVO.setBid(paramDTO.getBid());
             dynamicResVO.setPageUrl(paramDTO.getPageUrl());
             dynamicResVO.setCreateTime(paramDTO.getCreateTime());
+            dynamicResVO.setPics(StringUtils.concatStringList(getPicsByBid(paramDTO.getBid())));
             log.debug("------微博动态内容接口封装完毕，结果：" + JSONObject.toJSONString(dynamicResVO));
             return dynamicResVO;
         }
@@ -194,7 +223,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             if (!midQueue.contains(mid)) {
                 log.debug("midQueue不包含当前mid：" + mid + "，添加到队列中");
                 midQueue.add(mid);
-                if(midQueue.size() == 50){
+                if(midQueue.size() == 100){
                     log.debug("内存队列容量到达50，依次删除最旧的id");
                     midQueue.remove();
                 }

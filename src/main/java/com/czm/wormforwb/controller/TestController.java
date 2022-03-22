@@ -3,7 +3,7 @@ package com.czm.wormforwb.controller;
 import com.czm.wormforwb.mapper.UserDynamicLogMapper;
 import com.czm.wormforwb.pojo.DynamicLog;
 import com.czm.wormforwb.pojo.User;
-import com.czm.wormforwb.pojo.vo.DynamicResExtVO;
+import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
 import com.czm.wormforwb.service.UserService;
@@ -81,7 +81,7 @@ public class TestController {
 
     @GetMapping("dbq")
     public List<String> dbq(){
-        List<DynamicLog> dynamicLogs =  userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(),"test01");
+        List<DynamicLogVO> dynamicLogs =  userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(), DBUtils.getLogInfoTableName(),"test01");
         List<String> res = new ArrayList<>();
         for(DynamicLog dynamicLog:dynamicLogs){
             res.addAll(wbQueryService.getPicsByBid(dynamicLog.getBid()));

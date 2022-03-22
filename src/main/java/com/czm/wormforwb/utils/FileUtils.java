@@ -39,8 +39,13 @@ public class FileUtils {
      * @param user 用户
      * @return Boolean 是否创建成功
      **/
-    public static String createFileForUser(User user) {
-        String path = getLogDirPathForUser(user) + "/" + DateUtils.getYesterDayForFile() + ".pdf";
+    public static String createFileForUser(User user, Boolean isToday) {
+        String path;
+        if(isToday){
+            path = getLogDirPathForUser(user) + "/" + DateUtils.getNowDateForFile() + ".pdf";
+        }else {
+            path = getLogDirPathForUser(user) + "/" + DateUtils.getYesterDayForFile() + ".pdf";
+        }
         try {
             File file=new File(path);
             boolean res = false;
@@ -77,7 +82,23 @@ public class FileUtils {
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append(user.getName()).append("&").append(user.getUid()).toString();
+        return res.append(user.getUid()).toString();
+    }
+
+    public static String getPicsDirPathForMonth(){
+        StringBuilder res = new StringBuilder(unifiedLogPath);
+        if(!unifiedLogPath.endsWith("/")){
+            res.append("/");
+        }
+        return res.append("pics/").append(DateUtils.getNowDateForLogDB()).toString();
+    }
+
+    public static String getPicsDirPath(){
+        StringBuilder res = new StringBuilder(unifiedLogPath);
+        if(!unifiedLogPath.endsWith("/")){
+            res.append("/");
+        }
+        return res.append("pics").toString();
     }
 
     @Value("${unified.log.path}")

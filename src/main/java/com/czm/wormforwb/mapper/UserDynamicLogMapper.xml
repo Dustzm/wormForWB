@@ -9,13 +9,41 @@
         </foreach>
     </insert>
 
-    <select id="queryDynamicLogYesterdayByUid" resultType="com.czm.wormforwb.pojo.DynamicLog">
-        SELECT uid, mid, m_name as name, bid, page_url, create_time
-        FROM ${logTable}
-        WHERE uid = #{uid} AND
-              DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY),'%Y-%m-%d') AND
-              del = 0
+    <insert id="insertDynamicInfo" parameterType="com.czm.wormforwb.pojo.vo.DynamicResVO">
+        INSERT INTO ${logTable}
+        (mid, m_content, pics, del)
+        VALUES
+        <foreach collection="dynamicResVOs" item="model" separator=",">
+            (#{model.mid}, #{model.text}, #{model.pics}, 0)
+        </foreach>
+    </insert>
+
+    <select id="queryDynamicLogYesterdayByUid" resultType="com.czm.wormforwb.pojo.vo.DynamicLogVO">
+        SELECT a.uid, a.mid, a.m_name as name, a.bid, a.page_url, a.create_time, b.m_content as text, b.pics
+        FROM ${logTable} a
+        left join ${dynamicInfoTable} b on a.mid = b.mid
+        WHERE a.uid = #{uid} AND
+              DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY),'%Y-%m-%d') AND
+              a.del = 0 and b.del = 0
     </select>
 
+    <select id="queryDynamicLogTodayByUid" resultType="com.czm.wormforwb.pojo.vo.DynamicLogVO">
+        SELECT a.uid, a.mid, a.m_name as name, a.bid, a.page_url, a.create_time, b.m_content as text, b.pics
+        FROM ${logTable} a
+                 left join ${dynamicInfoTable} b on a.mid = b.mid
+        WHERE a.uid = #{uid} AND
+                DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') AND
+            a.del = 0 and b.del = 0
+    </select>
+
+    <select id="queryMids" resultType="java.lang.String">
+        SELECT DISTINCT mid FROM ${dynamicInfoTable} where del = 0
+    </select>
+
+    <select id="queryUpdatedMids" resultType="java.lang.String">
+        SELECT t.mid from (SELECT * FROM ${logTable} WHERE del = 0 AND
+        DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') ORDER BY create_time DESC LIMIT 10000) t
+        GROUP BY t.uid
+    </select>
 
 </mapper>

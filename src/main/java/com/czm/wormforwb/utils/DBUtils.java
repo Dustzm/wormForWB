@@ -45,7 +45,7 @@ public class DBUtils {
      * @return 次月日志表名
      **/
     public static String getLogTableSQLForNextMonth(){
-        return "CREATE TABLE `user_dynamic_log_" + DateUtils.getNextMonthForLogDB() +
+        return "CREATE IF NOT EXIST TABLE `user_dynamic_log_" + DateUtils.getNextMonthForLogDB() +
                 "` (\n" +
                 "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',\n" +
                 "  `uid` char(30) DEFAULT NULL COMMENT '用户id',\n" +
@@ -60,11 +60,32 @@ public class DBUtils {
     }
 
     /**
+     * 生成次月动态内容表名
+     * @return 次月动态内容表名
+     **/
+    public static String getLogInfoTableForNextMonth(){
+        return "CREATE IF NOT EXIST TABLE `dynamic_info_" + DateUtils.getNextMonthForLogDB() +
+                "` (\n" +
+                "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',\n" +
+                "  `mid` char(30) NOT NULL COMMENT '动态mid',\n" +
+                "  `m_content` text COMMENT '文字内容',\n" +
+                "  `pics` text COMMENT '图片绝对路径',\n" +
+                "  `del` tinyint(1) DEFAULT NULL COMMENT '删除标记',\n" +
+                "  PRIMARY KEY (`id`) USING BTREE,\n" +
+                "  UNIQUE KEY `mid` (`mid`)\n" +
+                ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4";
+    }
+
+    /**
      * 获取当前使用的日志表
      * @return String 日志表名
      **/
     public static String getLogTableName(){
         return "user_dynamic_log_" + DateUtils.getNowDateForLogDB();
+    }
+
+    public static String getLogInfoTableName(){
+        return "dynamic_info_" + DateUtils.getNowDateForLogDB();
     }
 
     /**

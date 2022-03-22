@@ -11,6 +11,8 @@ public interface UserMapper {
 
     List<User> queryAllUserInfo();
 
+    User queryUserById(@Param("uid") String uid);
+
     List<String> querySubIdByUser(@Param("uid") String uid);
 
 }

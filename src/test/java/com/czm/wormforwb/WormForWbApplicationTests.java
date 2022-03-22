@@ -1,6 +1,7 @@
 package com.czm.wormforwb;
 
 import com.czm.wormforwb.utils.FileUtils;
+import com.czm.wormforwb.utils.PDFUtils;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -39,7 +40,25 @@ class WormForWbApplicationTests {
 
     @Test
     void contextLoads() throws IOException {
+        String dest = "/Users/slience/Desktop/test02/sample.pdf";
+        PdfWriter writer = new PdfWriter(dest);
 
+        // 2、Creating a PdfDocument
+        PdfDocument pdfDoc = new PdfDocument(writer);
+
+        // 3、Adding an empty page
+        pdfDoc.addNewPage();
+
+        // 4、Creating a Document
+        Document document = new Document(pdfDoc);
+
+        ImageData data = ImageDataFactory.create("/Users/slience/Desktop/pics/202203/7811cf6bly1h0huyd6b95j20de04nwel.jpg");
+        Image image = new Image(data);
+        image.setAutoScale(true);
+        image.setHorizontalAlignment(HorizontalAlignment.CENTER);
+
+        document.add(image);
+        document.close();
     }
 
 }

@@ -1,6 +1,6 @@
 package com.czm.wormforwb.utils;
 
-import com.czm.wormforwb.pojo.vo.DynamicResExtVO;
+import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.itextpdf.io.font.PdfEncodings;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -53,18 +54,21 @@ public class PDFUtils {
      * @param document 指定PDF文件
      * @param dynamic 动态内容
      **/
-    public static void writeDynamicContentToPDF(Document document, DynamicResExtVO dynamic){
+    public static void writeDynamicContentToPDF(Document document, DynamicLogVO dynamic){
         //标题内容
         document.add(getTitle(dynamic.getName(), dynamic.getCreateTime()));
         //正文内容
         document.add(getContent(dynamic.getText()));
         //超链接
         document.add(getLink(dynamic.getPageUrl()));
-        if(dynamic.getPics().size() == 1){
-            document.add(getSingleImage(dynamic.getPics().get(0)));
-        } else if(dynamic.getPics().size() > 1){
-            document.add(getMultiImage(dynamic.getPics()));
+        List<String> pics = Arrays.asList(dynamic.getPics().split(","));
+        if(pics.size() == 1 && !pics.get(0).contains("null") && StringUtils.isNotBlank(pics.get(0))){
+            document.add(getSingleImage(pics.get(0)));
+        } else if(pics.size() > 1 && !pics.contains("null")){
+            document.add(getMultiImage(pics));
         }
+        //解决页末不显示图片问题
+        document.add(new Paragraph());
     }
 
     private static Paragraph getTitle(String name, String createTime){
@@ -150,7 +154,7 @@ public class PDFUtils {
             image.setHorizontalAlignment(HorizontalAlignment.CENTER);
             return image;
         }catch (MalformedURLException e){
-            log.error("PDF工具类生成图片抛出异常：{}", e.getStackTrace() );
+            log.error("PDF工具类生成图片抛出异常：{}", e);
             return null;
         }
     }
@@ -166,7 +170,7 @@ public class PDFUtils {
             style.setFont(pdfFont);
             return style;
         } catch (IOException e){
-            log.error("PDF工具类字体样式抛出异常：{}", e.getStackTrace());
+            log.error("PDF工具类字体样式抛出异常：{}", e);
         }
         return style;
     }
@@ -181,7 +185,7 @@ public class PDFUtils {
             PdfFont pdfFont = PdfFontFactory.createFont("fonts/simsun.ttc,1", PdfEncodings.IDENTITY_H);
             style.setFont(pdfFont).setFontColor(DeviceRgb.BLUE);
         } catch (IOException e){
-            log.error("PDF工具类字体样式抛出异常：{}", e.getStackTrace());
+            log.error("PDF工具类字体样式抛出异常：{}", e);
         }
         return style;
     }
@@ -192,7 +196,7 @@ public class PDFUtils {
             PdfFont pdfFont = PdfFontFactory.createFont("fonts/simhei.ttc,1", PdfEncodings.IDENTITY_H);
             style.setFont(pdfFont);
         } catch (IOException e){
-            log.error("PDF工具类字体样式抛出异常：{}", e.getStackTrace());
+            log.error("PDF工具类字体样式抛出异常：{}", e);
         }
         return style;
     }

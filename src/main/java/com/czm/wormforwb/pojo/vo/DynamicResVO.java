@@ -2,6 +2,8 @@ package com.czm.wormforwb.pojo.vo;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * 动态内容封装VO
  * @author Slience
@@ -21,6 +23,9 @@ public class DynamicResVO {
 
     //正文
     private String text;
+
+    //图片url
+    private String pics;
 
     //原文链接
     private String pageUrl;

@@ -14,5 +14,13 @@
         where uid = #{uid} and del = 0
     </select>
 
+    <select id="queryUserById" resultType="com.czm.wormforwb.pojo.User">
+        select u.uid,u.name,u.email,GROUP_CONCAT(s.sub_id ) as subIds
+        from public_user u
+                 left join public_user_sub_info s on u.uid = s.uid
+        where u.active = 1 and u.uid = #{uid}
+        GROUP BY u.uid
+    </select>
+
 
 </mapper>

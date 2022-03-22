@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 微博指定博主动态监视任务，检测到更新后发送到指定邮箱
@@ -47,11 +48,8 @@ public class WBDynamicMonitorTask {
             log.debug("------为当前用户: " + user.getUid() + "--" + user.getName() + "执行动态监视任务");
             execute(user);
             Long endTime = System.currentTimeMillis();
-            log.debug("------用户" + user.getUid() + "--" + user.getName() + "任务执行结束，耗时：" + (endTime - startTime)/1000 + "s");
+            log.debug("------用户" + user.getUid() + "&" + user.getName() + "任务执行结束，耗时：" + (endTime - startTime)/1000 + "s");
         }
-
-
-
     }
 
     private void execute(User user){
@@ -65,6 +63,12 @@ public class WBDynamicMonitorTask {
             emailSendService.sendEmail(user.getName() + ",你的心头好有更新哦～",emailContent.toString(), user.getEmail());
             log.debug("------将动态内容记录至数据库------");
             userDynamicLogMapper.insertDynamicLogBatch(dynamicResVOS, DBUtils.getLogTableName(),user.getUid());
+            List<String> mids = userDynamicLogMapper.queryMids(DBUtils.getLogInfoTableName());
+            //mid不重复
+            dynamicResVOS = dynamicResVOS.stream().filter(a->!mids.contains(a.getMid())).collect(Collectors.toList());
+            if(dynamicResVOS.size() != 0){
+                userDynamicLogMapper.insertDynamicInfo(dynamicResVOS, DBUtils.getLogInfoTableName());
+            }
         }else{
             log.debug("未检测到更新，休眠中。。。");
         }

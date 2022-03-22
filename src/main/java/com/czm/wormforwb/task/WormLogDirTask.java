@@ -1,10 +1,7 @@
 package com.czm.wormforwb.task;
 
-import com.czm.wormforwb.pojo.DynamicLog;
 import com.czm.wormforwb.pojo.User;
-import com.czm.wormforwb.pojo.dto.DynamicParamDTO;
-import com.czm.wormforwb.pojo.vo.DynamicResExtVO;
-import com.czm.wormforwb.pojo.vo.DynamicResVO;
+import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.service.UserService;
 import com.czm.wormforwb.service.WBQueryService;
 import com.czm.wormforwb.utils.FileUtils;
@@ -12,7 +9,6 @@ import com.czm.wormforwb.utils.PDFUtils;
 import com.czm.wormforwb.utils.StringUtils;
 import com.itextpdf.layout.Document;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -28,9 +24,6 @@ import java.util.List;
 @Slf4j
 public class WormLogDirTask {
 
-    @Value("${unified.log.path}")
-    private String unifiedLogPath;
-
     @Resource
     UserService userService;
 
@@ -38,7 +31,6 @@ public class WormLogDirTask {
     WBQueryService wbQueryService;
 
     @Scheduled(cron = "0 0 1 * * ? ")
-//    @Scheduled(cron = "0 */1 * * * ?")
     public void createLogDir(){
         log.debug("------日志文件夹创建定时任务开始-------");
         //为每个用户创建文件夹
@@ -53,56 +45,42 @@ public class WormLogDirTask {
     }
 
     @Scheduled(cron = "0 0 2 * * ? ")
-//    @Scheduled(cron = "0 */2 * * * ?")
     public void createYesterdayLogForAllUser(){
         log.debug("------日志导出任务开始------");
         Long startTime = System.currentTimeMillis();
         List<User> users = userService.getAllUser();
         try {
             for (User user : users) {
-                List<DynamicLog> dynamicLogs = wbQueryService.getDynamicLogYesterday(user);
+                List<DynamicLogVO> dynamicLogs = wbQueryService.getDynamicLogYesterday(user);
                 if(dynamicLogs.size() == 0){
-                    log.debug("用户：" + user.getName() + "&" + user.getUid() + "今日无动态记录，不执行导出任务");
+                    log.debug("用户：" + user.getName() + "&" + user.getUid() + "昨日无动态记录，不执行导出任务");
                     continue;
                 }
-                String logPath = FileUtils.createFileForUser(user);
+                String logPath = FileUtils.createFileForUser(user,false);
                 if (StringUtils.isBlank(logPath)) {
                     log.error("用户：" + user.getName() + "&" + user.getUid() + "创建日志pdf失败");
                     continue;
                 }
-                Document document = PDFUtils.createNewPDF(logPath);
-                createPDFLog(document,user,dynamicLogs);
+                createPDFLog(PDFUtils.createNewPDF(logPath),dynamicLogs);
             }
         }catch (Exception e) {
-            log.error("日志导出任务抛出异常：{}\n{}",e.getMessage(),e.getStackTrace());
+            log.error("日志导出任务抛出异常：{}",e);
         }
         Long endTime = System.currentTimeMillis();
         log.debug("------导出任务结束，耗时：" + (endTime-startTime)/1000 + "s");
     }
 
-    private void createPDFLog(Document document, User user, List<DynamicLog> dynamicLogs){
+    @Scheduled(cron = "0 0 1 L * ? ")
+    public void createPicsDir(){
+        FileUtils.createDir(FileUtils.getPicsDirPathForMonth());
+    }
+
+    private void createPDFLog(Document document, List<DynamicLogVO> dynamicLogs){
         //查找昨日该用户的记录，并将每个记录导出到pdf
-        for(DynamicLog dynamicLog : dynamicLogs){
-            DynamicResVO dynamicResVO = wbQueryService.getDynamicContent(getParam(dynamicLog));
-            List<String> pics = wbQueryService.getPicsByBid(dynamicLog.getBid());
-            //日志内容实体类
-            DynamicResExtVO dynamic = new DynamicResExtVO(dynamicResVO, pics);
-            PDFUtils.writeDynamicContentToPDF(document,dynamic);
+        for(DynamicLogVO dynamicLog : dynamicLogs){
+            PDFUtils.writeDynamicContentToPDF(document,dynamicLog);
         }
         document.close();
     }
-
-    private DynamicParamDTO getParam(DynamicLog dynamicLog){
-        DynamicParamDTO paramDTO = new DynamicParamDTO();
-        paramDTO.setMid(dynamicLog.getMid());
-        paramDTO.setName(dynamicLog.getName());
-        paramDTO.setBid(dynamicLog.getBid());
-        paramDTO.setPageUrl(dynamicLog.getPageUrl());
-        paramDTO.setCreateTime(dynamicLog.getCreateTime());
-        return paramDTO;
-    }
-
-
-
 
 }
