@@ -33,12 +33,6 @@ import java.io.IOException;
 class WormForWbApplicationTests {
 
     @Test
-    void test()  {
-        String path = FileUtils.getLogDirPathToday() + "/test.pdf";
-        System.out.println(path);
-    }
-
-    @Test
     void contextLoads() throws IOException {
         String dest = "/Users/slience/Desktop/test02/sample.pdf";
         PdfWriter writer = new PdfWriter(dest);

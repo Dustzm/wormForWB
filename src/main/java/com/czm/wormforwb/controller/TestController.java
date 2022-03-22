@@ -58,11 +58,6 @@ public class TestController {
         return userService.getAllUser();
     }
 
-    @GetMapping("file")
-    public String file(){
-        return FileUtils.createDir(FileUtils.getLogDirPathToday()).toString();
-    }
-
     @GetMapping("db")
     public Integer db(){
         DynamicResVO dynamic1 = new DynamicResVO();

@@ -61,18 +61,6 @@ public class FileUtils {
     }
 
     /**
-     * 根据当日日期，生成今日的文件夹名
-     * @return String 统一日志文件路径加当前日期
-     **/
-    public static String getLogDirPathToday(){
-        StringBuilder res = new StringBuilder(unifiedLogPath);
-        if(!unifiedLogPath.endsWith("/")){
-            res.append("/");
-        }
-        return res.append(DateUtils.getNowDateForFile()).toString();
-    }
-
-    /**
      * 为指定用户创建文件夹
      * @param user 用户
      * @return String 用户文件夹名
