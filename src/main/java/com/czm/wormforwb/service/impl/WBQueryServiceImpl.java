@@ -105,7 +105,7 @@ public class WBQueryServiceImpl implements WBQueryService {
         wbUrl.append("?").append("id=").append(bid);
         log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
         String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
-        log.debug("------微博动态详情接口调用成功：" + response);
+        //log.debug("------微博动态详情接口调用成功：" + response);
         List<String> res = new ArrayList<>();
         JSONObject rsJson = JSONObject.parseObject(response);
         Integer isOk = rsJson.getInteger("ok");
@@ -157,7 +157,7 @@ public class WBQueryServiceImpl implements WBQueryService {
         log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
         try{
             String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
-            log.debug("------微博动态内容接口调用成功：" + response);
+            //log.debug("------微博动态内容接口调用成功：" + response);
             JSONObject rsJson = JSONObject.parseObject(response);
             Integer isOk = rsJson.getInteger("ok");
             if(1 == isOk){
@@ -200,7 +200,7 @@ public class WBQueryServiceImpl implements WBQueryService {
         log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
         //wbUrl.append("?type=uid&value=2803301701&containerid=1076032803301701&count=25");
         String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
-        log.debug("------微博动态监视id接口调用成功：" + response);
+        //log.debug("------微博动态监视id接口调用成功：" + response);
         JSONObject rsJson = JSONObject.parseObject(response);
         Integer isOk = rsJson.getInteger("ok");
         if(1 == isOk){

@@ -86,7 +86,7 @@ public class FileUtils {
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append("pics").toString();
+        return res.append("pics").append("/").append(DateUtils.getNowDateForLogDB()).toString();
     }
 
     @Value("${unified.log.path}")

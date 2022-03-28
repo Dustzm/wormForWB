@@ -41,9 +41,9 @@
     </select>
 
     <select id="queryUpdatedMids" resultType="com.czm.wormforwb.pojo.vo.DynamicFlagVO">
-        SELECT t.mid,t.uid from (SELECT * FROM ${logTable} WHERE del = 0 AND
-        DATE_FORMAT(create_time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') ORDER BY create_time DESC LIMIT 10000) t
-        GROUP BY t.uid
+        SELECT t.mid,t.uid,t.m_name from (SELECT * FROM ${logTable} WHERE del = 0
+                                          ORDER BY create_time DESC LIMIT 10000) t
+        GROUP BY t.uid,t.m_name
     </select>
 
 </mapper>

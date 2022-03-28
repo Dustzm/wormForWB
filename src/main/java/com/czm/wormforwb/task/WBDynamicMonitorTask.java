@@ -8,7 +8,9 @@ import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
 import com.czm.wormforwb.service.WBQueryService;
 import com.czm.wormforwb.utils.DBUtils;
+import com.czm.wormforwb.utils.DateUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -37,6 +39,9 @@ public class WBDynamicMonitorTask {
     @Resource
     private UserDynamicLogMapper userDynamicLogMapper;
 
+    @Value("${service.domain}")
+    private String domain;
+
     //默认2分钟执行一次
     @Scheduled(cron = "0 */5 * * * ?")
     public void monitor(){
@@ -59,6 +64,7 @@ public class WBDynamicMonitorTask {
             for(DynamicResVO dynamicRes : dynamicResVOS){
                 emailContent.append(getEmailContent(dynamicRes));
             }
+            emailContent.append(getFormattedLogUrl(user));
             log.debug("------邮件内容:" + emailContent);
             emailSendService.sendEmail(user.getName() + ",你的心头好有更新哦～",emailContent.toString(), user.getEmail());
             log.debug("------将动态内容记录至数据库------");
@@ -88,6 +94,24 @@ public class WBDynamicMonitorTask {
                 .append("&nbsp&nbsp&nbsp&nbsp").append("转发数：").append(dynamicRes.getRepostsCount()).append("<br>");
         return emailContent;
 
+    }
+
+    private StringBuilder getFormattedLogUrl(User user){
+        StringBuilder logUrl = new StringBuilder();
+        logUrl.append("<br>")
+                .append("<a href=\"").append(getLogUrl(user)).append("\">").append("这里是昨天的动态记录QWQ").append("</a>")
+                .append("<br>");
+        return logUrl;
+    }
+
+    private StringBuilder getLogUrl(User user){
+        StringBuilder res = new StringBuilder();
+        StringBuilder domainUrl = new StringBuilder(domain);
+        if(!domain.endsWith("/")){
+            domainUrl.append("/");
+        }
+        res.append(domain).append("log/").append(user.getUid()).append("/").append(DateUtils.getYesterDayForFile()).append(".pdf");
+        return res;
     }
 
 }
