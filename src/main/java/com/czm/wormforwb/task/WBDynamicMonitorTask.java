@@ -46,18 +46,21 @@ public class WBDynamicMonitorTask {
     @Scheduled(cron = "0 */5 * * * ?")
     public void monitor(){
         log.debug("------微博动态监视任务开始------");
+        Long startTime = System.currentTimeMillis();
         List<User> users = userMapper.queryAllUserInfo();
         log.debug("------查询当前活跃用户：" + JSONObject.toJSONString(users));
         for(User user : users){
-            Long startTime = System.currentTimeMillis();
-            log.debug("------为当前用户: " + user.getUid() + "--" + user.getName() + "执行动态监视任务");
-            execute(user);
-            Long endTime = System.currentTimeMillis();
-            log.debug("------用户" + user.getUid() + "&" + user.getName() + "任务执行结束，耗时：" + (endTime - startTime)/1000 + "s");
+            new Thread(()->{
+                execute(user);
+            }).start();
         }
+        Long endTime = System.currentTimeMillis();
+        log.debug("------微博动态监视任务主线程结束，耗时：" + (endTime - startTime)/1000 + "s------");
     }
 
     private void execute(User user){
+        Long startTime = System.currentTimeMillis();
+        log.debug("------为当前用户: " + user.getUid() + "&" + user.getName() + "执行动态监视任务");
         StringBuilder emailContent = new StringBuilder();
         List<DynamicResVO> dynamicResVOS = wbQueryService.monitorDynamic(user.getUid(),user.getSubIds());
         if(dynamicResVOS.size() != 0){
@@ -65,9 +68,9 @@ public class WBDynamicMonitorTask {
                 emailContent.append(getEmailContent(dynamicRes));
             }
             emailContent.append(getFormattedLogUrl(user));
-            log.debug("------邮件内容:" + emailContent);
+            //log.debug("------邮件内容:" + emailContent);
             emailSendService.sendEmail(user.getName() + ",你的心头好有更新哦～",emailContent.toString(), user.getEmail());
-            log.debug("------将动态内容记录至数据库------");
+            //log.debug("------将动态内容记录至数据库------");
             userDynamicLogMapper.insertDynamicLogBatch(dynamicResVOS, DBUtils.getLogTableName(),user.getUid());
             List<String> mids = userDynamicLogMapper.queryMids(DBUtils.getLogInfoTableName());
             //mid不重复
@@ -78,6 +81,8 @@ public class WBDynamicMonitorTask {
         }else{
             log.debug("未检测到更新，休眠中。。。");
         }
+        Long endTime = System.currentTimeMillis();
+        log.debug("------用户" + user.getUid() + "&" + user.getName() + "任务执行结束，耗时：" + (endTime - startTime)/1000 + "s");
     }
 
     private StringBuilder getEmailContent(DynamicResVO dynamicRes){

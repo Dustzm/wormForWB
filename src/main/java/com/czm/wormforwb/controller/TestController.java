@@ -1,6 +1,7 @@
 package com.czm.wormforwb.controller;
 
 import com.czm.wormforwb.mapper.UserDynamicLogMapper;
+import com.czm.wormforwb.mapper.UserMapper;
 import com.czm.wormforwb.pojo.DynamicLog;
 import com.czm.wormforwb.pojo.User;
 import com.czm.wormforwb.pojo.vo.DynamicLogVO;
@@ -10,6 +11,7 @@ import com.czm.wormforwb.service.UserService;
 import com.czm.wormforwb.service.WBQueryService;
 import com.czm.wormforwb.utils.DBUtils;
 import com.czm.wormforwb.utils.FileUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -23,9 +25,13 @@ import java.util.List;
  * @author Slience
  * @date 2022/3/10 13:33
  **/
+@Slf4j
 @RestController
 @RequestMapping("/test")
 public class TestController {
+
+    @Resource
+    private UserMapper userMapper;
 
     @Resource
     private EmailSendService emailSendService;
@@ -82,5 +88,44 @@ public class TestController {
             res.addAll(wbQueryService.getPicsByBid(dynamicLog.getBid()));
         }
         return res;
+    }
+
+    @GetMapping("thread")
+    public String test(){
+        List<User> userList = userMapper.queryAllUserInfo();
+        log.debug("****主线程开始");
+        long startTime = System.currentTimeMillis();
+        for(int i= 0 ;i<1000;i++){
+            int finalI = i;
+            new Thread(()->{
+                executeTask(finalI);
+            }).start();
+        }
+        log.debug("****主线程结束：" + "耗时：" + (System.currentTimeMillis() - startTime)/1000 + "s");
+        return "done";
+    }
+
+    private void executeTask(Integer user){
+        log.debug("----线程开始");
+        long startTime = System.currentTimeMillis();
+        System.out.println("为用户" + user + "执行任务。。。");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        log.debug("----线程：" + user + " 结束,耗时：" + (System.currentTimeMillis() - startTime)/1000 + "s");
+    }
+
+    @GetMapping("nothread")
+    public String nothread(){
+        log.debug("****主线程开始");
+        long startTime = System.currentTimeMillis();
+        for(int i= 0 ;i<1000;i++){
+            int finalI = i;
+            executeTask(finalI);
+        }
+        log.debug("****主线程结束：" + "耗时：" + (System.currentTimeMillis() - startTime)/1000 + "s");
+        return "done";
     }
 }

@@ -179,7 +179,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             log.debug("------微博动态内容接口返回异常------");
             return null;
         }catch (Exception e){
-            log.error("------微博动态内容接口异常:{}",e);
+            log.error("------微博动态内容接口异常:",e);
             return null;
         }
 
@@ -198,7 +198,6 @@ public class WBQueryServiceImpl implements WBQueryService {
         wbUrl.append("containerid=107603").append(uid).append("&");
         wbUrl.append("count=").append(dynamicCount);
         log.debug("------请求url拼接完毕：" + wbUrl + "，请求开始");
-        //wbUrl.append("?type=uid&value=2803301701&containerid=1076032803301701&count=25");
         String response = restTemplate.getForEntity(wbUrl.toString(),String.class).getBody();
         //log.debug("------微博动态监视id接口调用成功：" + response);
         JSONObject rsJson = JSONObject.parseObject(response);
@@ -241,7 +240,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             log.debug("midQueue不包含当前mid：" + mflag + "，添加到队列中");
             midQueue.add(mflag);
             if (midQueue.size() == 100) {
-                log.debug("内存队列容量到达50，依次删除最旧的id");
+                log.debug("内存队列容量到达100，依次删除最旧的id");
                 midQueue.remove();
             }
             return true;
