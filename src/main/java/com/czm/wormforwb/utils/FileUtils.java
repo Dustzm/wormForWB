@@ -73,12 +73,12 @@ public class FileUtils {
         return res.append(user.getUid()).toString();
     }
 
-    public static String getPicsDirPathForMonth(){
+    public static String getPicsDirPathForNextMonth(){
         StringBuilder res = new StringBuilder(unifiedLogPath);
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append("pics/").append(DateUtils.getNowMonthForLogDB()).toString();
+        return res.append("pics/").append(DateUtils.getNextMonthForLogDB()).toString();
     }
 
     public static String getPicsDirPath(){

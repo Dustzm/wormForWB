@@ -72,7 +72,7 @@ public class WormLogDirTask {
 
     @Scheduled(cron = "0 0 1 L * ? ")
     public void createPicsDir(){
-        FileUtils.createDir(FileUtils.getPicsDirPathForMonth());
+        FileUtils.createDir(FileUtils.getPicsDirPathForNextMonth());
     }
 
     private void createPDFLog(Document document, List<DynamicLogVO> dynamicLogs){
