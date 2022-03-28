@@ -81,11 +81,31 @@ public class DBUtils {
      * @return String 日志表名
      **/
     public static String getLogTableName(){
-        return "user_dynamic_log_" + DateUtils.getNowDateForLogDB();
+        return "user_dynamic_log_" + DateUtils.getNowMonthForLogDB();
     }
 
+    /**
+     * 获取上个月使用的日志表
+     * @return String 日志表名
+     **/
+    public static String getLastMonthLogTableName(){
+        return "user_dynamic_log_" + DateUtils.getLastMonthForDB();
+    }
+
+    /**
+     * 获取当前的日志详细信息表名
+     * @return String 日志详细信息表名
+     **/
     public static String getLogInfoTableName(){
-        return "dynamic_info_" + DateUtils.getNowDateForLogDB();
+        return "dynamic_info_" + DateUtils.getNowMonthForLogDB();
+    }
+
+    /**
+     * 获取当前的日志详细信息表名
+     * @return String 日志详细信息表名
+     **/
+    public static String getLastMonthLogInfoTableName(){
+        return "dynamic_info_" + DateUtils.getLastMonthForDB();
     }
 
     /**

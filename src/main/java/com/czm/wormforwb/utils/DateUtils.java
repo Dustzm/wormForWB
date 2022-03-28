@@ -59,7 +59,7 @@ public class DateUtils {
      * 获取当前月份作为日志表分表名
      * @return String 当前日期
      **/
-    public static String getNowDateForLogDB(){
+    public static String getNowMonthForLogDB(){
         return logDBFormat.format(new Date());
     }
 
@@ -73,4 +73,30 @@ public class DateUtils {
         calendar.add(Calendar.MONTH,1);
         return logDBFormat.format(calendar.getTime());
     }
+
+    /**
+     * 获取当月第一天
+     **/
+    public static String getFirstDayThisMonth(){
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.MONTH, 0);
+        c.set(Calendar.DAY_OF_MONTH,1);//设置为1号,当前日期既为本月第一天
+        return fileFormat.format(c.getTime());
+    }
+
+    /**
+     * 获取上个月时间
+     **/
+    public static String getLastMonthForDB(){
+        Calendar cale = Calendar.getInstance();
+        cale.set(Calendar.DAY_OF_MONTH,0);//设置为1号,当前日期既为本月第一天
+        return logDBFormat.format(cale.getTime());
+    }
+
+    public static String getNowDate(){
+        Calendar cale = Calendar.getInstance();
+        cale.setTime(new Date());//设置为1号,当前日期既为本月第一天
+        return fileFormat.format(cale.getTime());
+    }
+
 }

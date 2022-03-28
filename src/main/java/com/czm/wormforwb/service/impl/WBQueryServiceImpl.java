@@ -136,7 +136,17 @@ public class WBQueryServiceImpl implements WBQueryService {
      **/
     @Override
     public List<DynamicLogVO> getDynamicLogYesterday(User user) {
-        return userDynamicLogMapper.queryDynamicLogYesterdayByUid(DBUtils.getLogTableName(), DBUtils.getLogInfoTableName(), user.getUid());
+        String logTableName;
+        String logInfoTableName;
+        //月初1号跨表
+        if(DateUtils.getNowDate().equals(DateUtils.getFirstDayThisMonth())){
+            logTableName = DBUtils.getLastMonthLogTableName();
+            logInfoTableName = DBUtils.getLastMonthLogInfoTableName();
+        }else {
+            logTableName = DBUtils.getLogTableName();
+            logInfoTableName = DBUtils.getLogInfoTableName();
+        }
+        return userDynamicLogMapper.queryDynamicLogYesterdayByUid(logTableName, logInfoTableName, user.getUid());
     }
 
     @Override

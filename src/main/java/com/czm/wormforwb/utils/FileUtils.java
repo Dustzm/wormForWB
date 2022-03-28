@@ -78,7 +78,7 @@ public class FileUtils {
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append("pics/").append(DateUtils.getNowDateForLogDB()).toString();
+        return res.append("pics/").append(DateUtils.getNowMonthForLogDB()).toString();
     }
 
     public static String getPicsDirPath(){
@@ -86,7 +86,7 @@ public class FileUtils {
         if(!unifiedLogPath.endsWith("/")){
             res.append("/");
         }
-        return res.append("pics").append("/").append(DateUtils.getNowDateForLogDB()).toString();
+        return res.append("pics").append("/").append(DateUtils.getNowMonthForLogDB()).toString();
     }
 
     @Value("${unified.log.path}")
