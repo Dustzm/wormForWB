@@ -4,6 +4,7 @@ import com.czm.wormforwb.mapper.UserDynamicLogMapper;
 import com.czm.wormforwb.mapper.UserMapper;
 import com.czm.wormforwb.pojo.DynamicLog;
 import com.czm.wormforwb.pojo.User;
+import com.czm.wormforwb.pojo.dto.DynamicParamDTO;
 import com.czm.wormforwb.pojo.vo.DynamicLogVO;
 import com.czm.wormforwb.pojo.vo.DynamicResVO;
 import com.czm.wormforwb.service.EmailSendService;
@@ -54,9 +55,8 @@ public class TestController {
     }
 
     @GetMapping("wb")
-    public List<DynamicResVO> wb(){
-        //return wbQueryService.monitorDynamic();
-        return null;
+    public DynamicParamDTO wb(){
+        return wbQueryService.getUpdatedMid("1670659923");
     }
 
     @GetMapping("user")

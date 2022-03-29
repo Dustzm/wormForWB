@@ -200,7 +200,8 @@ public class WBQueryServiceImpl implements WBQueryService {
      * @author Slience
      * @date 2022/3/10 14:54
      **/
-    private DynamicParamDTO getUpdatedMid(String uid){
+    @Override
+    public DynamicParamDTO getUpdatedMid(String uid){
         StringBuilder wbUrl = new StringBuilder(midUrl);
         log.debug("------微博动态监视id接口调用开始,id:" + uid +"------");
         wbUrl.append("?type=uid").append("&");
@@ -215,21 +216,27 @@ public class WBQueryServiceImpl implements WBQueryService {
         if(1 == isOk){
             //接口调用成功
             JSONArray cards = rsJson.getJSONObject("data").getJSONArray("cards");
-            JSONObject card;
-            //判断是否为置顶动态
-            if(cards.size() > 1){
-                card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(1)));
+            JSONObject card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(0)));
+            Integer cardType = card.getInteger("card_type");
+            //正常动态
+            if(9 == cardType){
+                Integer isTop = card.getJSONObject("mblog").getInteger("isTop");
+                //判断是否存在置顶动态
+                if(isTop != null && isTop == 1){
+                    card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(1)));
+                }
+                //获取动态mid和发布时间，以查询动态全文
+                DynamicParamDTO paramDTO = new DynamicParamDTO();
+                paramDTO.setMid(card.getJSONObject("mblog").getString("mid"));
+                paramDTO.setBid(card.getJSONObject("mblog").getString("bid"));
+                paramDTO.setCreateTime(DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at")));
+                paramDTO.setName(card.getJSONObject("mblog").getJSONObject("user").getString("screen_name"));
+                paramDTO.setPageUrl(card.getString("scheme"));
+                return paramDTO;
             }else{
-                card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(0)));
+                log.debug("该博主状态异常，不获取动态");
+                return null;
             }
-            //获取动态mid和发布时间，以查询动态全文
-            DynamicParamDTO paramDTO = new DynamicParamDTO();
-            paramDTO.setMid(card.getJSONObject("mblog").getString("mid"));
-            paramDTO.setBid(card.getJSONObject("mblog").getString("bid"));
-            paramDTO.setCreateTime(DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at")));
-            paramDTO.setName(card.getJSONObject("mblog").getJSONObject("user").getString("screen_name"));
-            paramDTO.setPageUrl(card.getString("scheme"));
-            return paramDTO;
         }
         return null;
     }

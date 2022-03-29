@@ -22,4 +22,6 @@ public interface WBQueryService {
 
     DynamicResVO getDynamicContent(DynamicParamDTO paramDTO);
 
+    DynamicParamDTO getUpdatedMid(String uid);
+
 }
