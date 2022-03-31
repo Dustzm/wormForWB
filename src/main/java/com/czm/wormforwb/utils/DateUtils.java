@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 /**
  * 时间工具类
@@ -93,10 +94,31 @@ public class DateUtils {
         return logDBFormat.format(cale.getTime());
     }
 
+    /**
+     * 获取今日日期
+     **/
     public static String getNowDate(){
         Calendar cale = Calendar.getInstance();
         cale.setTime(new Date());//设置为1号,当前日期既为本月第一天
         return fileFormat.format(cale.getTime());
+    }
+
+    /**
+     * 判断时间是否为今天
+     **/
+    public static Boolean isToday(String dateStr){
+        try{
+            Date today = new Date();
+            Date date = strFormat.parse(dateStr);
+            return fileFormat.format(today).equals(fileFormat.format(date));
+        }catch (ParseException e){
+            log.debug("时间转换抛出异常",e);
+            return false;
+        }
+    }
+
+    public static void main(String[] args) {
+        System.out.println(isToday("2022/03/31 13:28:00"));
     }
 
 }

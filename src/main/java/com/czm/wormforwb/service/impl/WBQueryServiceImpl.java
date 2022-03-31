@@ -225,6 +225,11 @@ public class WBQueryServiceImpl implements WBQueryService {
                 if(isTop != null && isTop == 1){
                     card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(1)));
                 }
+                String createTime = DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at"));
+                if(!DateUtils.isToday(createTime)){
+                    log.debug("该动态不是今天发布，不获取");
+                    return null;
+                }
                 //获取动态mid和发布时间，以查询动态全文
                 DynamicParamDTO paramDTO = new DynamicParamDTO();
                 paramDTO.setMid(card.getJSONObject("mblog").getString("mid"));
