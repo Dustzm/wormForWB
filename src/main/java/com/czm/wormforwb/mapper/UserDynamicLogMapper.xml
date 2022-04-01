@@ -25,6 +25,7 @@
         WHERE a.uid = #{uid} AND
               DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(DATE_SUB(CURDATE(), INTERVAL 1 DAY),'%Y-%m-%d') AND
               a.del = 0 and b.del = 0
+        GROUP BY a.mid
     </select>
 
     <select id="queryDynamicLogTodayByUid" resultType="com.czm.wormforwb.pojo.vo.DynamicLogVO">
@@ -34,6 +35,7 @@
         WHERE a.uid = #{uid} AND
                 DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(CURDATE(),'%Y-%m-%d') AND
             a.del = 0 and b.del = 0
+        GROUP BY a.mid
     </select>
 
     <select id="queryMids" resultType="java.lang.String">
