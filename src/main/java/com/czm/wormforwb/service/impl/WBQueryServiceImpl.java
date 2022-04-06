@@ -226,9 +226,21 @@ public class WBQueryServiceImpl implements WBQueryService {
                     card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(1)));
                 }
                 String createTime = DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at"));
+                //不包含isTop的置顶动态处理
                 if(!DateUtils.isToday(createTime)){
-                    log.debug("该动态不是今天发布，不获取");
-                    return null;
+                    log.debug("该动态不是今天发布，判断是否为置顶动态");
+                    card = JSONObject.parseObject(JSONObject.toJSONString(cards.get(1)));
+                    String createTime1 = DateUtils.convertNormalDateToPattern(card.getJSONObject("mblog").getString("created_at"));
+                    if(!DateUtils.isToday(createTime1)){
+                        log.debug("博主最新动态不是今天发布，跳过该博主");
+                        return null;
+                    }
+                    List<String> mids = userDynamicLogMapper.queryMids(DBUtils.getLogInfoTableName());
+                    if(mids.contains(card.getJSONObject("mblog").getString("mid"))){
+                        log.debug("最新动态已发送，不予处理");
+                        return null;
+                    }
+                    log.debug("成功去除置顶动态，并处理正确的最新动态");
                 }
                 //获取动态mid和发布时间，以查询动态全文
                 DynamicParamDTO paramDTO = new DynamicParamDTO();
