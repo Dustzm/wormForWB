@@ -1,5 +1,6 @@
 package com.czm.wormforwb.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.jdbc.ScriptRunner;
 
@@ -15,6 +16,7 @@ import java.util.Properties;
  * @author Slience
  * @date 2022/3/13 14:47
  **/
+@Slf4j
 public class DBUtils {
 
     /**
@@ -32,11 +34,11 @@ public class DBUtils {
             // 建立连接
             Connection conn = DriverManager.getConnection(url, username, password);
             Statement stmt = conn.createStatement();
-            stmt.executeUpdate(sql);//int
+            stmt.execute(sql);//int
             // 关闭连接
             conn.close();
         } catch (IOException | SQLException e) {
-            e.printStackTrace();
+            log.error("数据库生成表定时任务报错：", e);
         }
     }
 
@@ -45,7 +47,7 @@ public class DBUtils {
      * @return 次月日志表名
      **/
     public static String getLogTableSQLForNextMonth(){
-        return "CREATE IF NOT EXIST TABLE `user_dynamic_log_" + DateUtils.getNextMonthForLogDB() +
+        return "CREATE TABLE IF NOT EXISTS `user_dynamic_log_" + DateUtils.getNextMonthForLogDB() +
                 "` (\n" +
                 "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',\n" +
                 "  `uid` char(30) DEFAULT NULL COMMENT '用户id',\n" +
@@ -64,7 +66,7 @@ public class DBUtils {
      * @return 次月动态内容表名
      **/
     public static String getLogInfoTableForNextMonth(){
-        return "CREATE IF NOT EXIST TABLE `dynamic_info_" + DateUtils.getNextMonthForLogDB() +
+        return "CREATE TABLE IF NOT EXISTS `dynamic_info_" + DateUtils.getNextMonthForLogDB() +
                 "` (\n" +
                 "  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',\n" +
                 "  `mid` char(30) NOT NULL COMMENT '动态mid',\n" +
