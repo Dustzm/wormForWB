@@ -189,7 +189,7 @@ public class WBQueryServiceImpl implements WBQueryService {
             log.debug("------微博动态内容接口返回异常------");
             return null;
         }catch (Exception e){
-            log.error("------微博动态内容接口异常:",e);
+            log.error("请求url:" + wbUrl + "------微博动态内容接口异常:",e);
             return null;
         }
 

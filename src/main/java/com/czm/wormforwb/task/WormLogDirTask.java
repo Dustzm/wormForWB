@@ -30,7 +30,7 @@ public class WormLogDirTask {
     @Resource
     WBQueryService wbQueryService;
 
-    @Scheduled(cron = "0 0 1 * * ? ")
+    @Scheduled(cron = "0 6 1 * * ? ")
     public void createLogDir(){
         log.debug("------日志文件夹创建定时任务开始-------");
         //为每个用户创建文件夹
@@ -44,7 +44,7 @@ public class WormLogDirTask {
         }
     }
 
-    @Scheduled(cron = "0 0 2 * * ? ")
+    @Scheduled(cron = "0 1 2 * * ? ")
     public void createYesterdayLogForAllUser(){
         log.debug("------日志导出任务开始------");
         Long startTime = System.currentTimeMillis();
@@ -70,7 +70,10 @@ public class WormLogDirTask {
         log.debug("------导出任务结束，耗时：" + (endTime-startTime)/1000 + "s");
     }
 
-    @Scheduled(cron = "0 0 1 L * ? ")
+    /**
+     * 每月最后一天1点02执行
+     */
+    @Scheduled(cron = "0 2 1 L * ? ")
     public void createPicsDir(){
         FileUtils.createDir(FileUtils.getPicsDirPathForNextMonth());
     }
