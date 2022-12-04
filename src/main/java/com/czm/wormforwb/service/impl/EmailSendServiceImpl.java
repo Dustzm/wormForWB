@@ -42,9 +42,12 @@ public class EmailSendServiceImpl implements EmailSendService {
     @Value("${email.sender.authorization.code}")
     private String authorizationCode;
 
+    @Value("${email.getter.address}")
+    private String getterEmail;
+
 
     @Override
-    public Boolean sendEmail(String title, String content, String getterEmail) {
+    public Boolean sendEmail(String title, String content) {
         // 未配置 或者配置是不发送
         if (ObjectUtils.isEmpty(emailSender) || !emailSender) {
             return false;
