@@ -16,6 +16,8 @@ public class DynamicParamDTO {
 
     private String mid;
 
+    private String bid;
+
     private String name;
 
     private String pageUrl;
