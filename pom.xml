@@ -11,7 +11,7 @@
     <groupId>com.czm</groupId>
     <artifactId>wormForWB</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
+    <packaging>jar</packaging>
     <name>wormForWB</name>
     <description>wormForWB</description>
     <properties>

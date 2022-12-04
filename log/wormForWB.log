@@ -1,0 +1,9 @@
+2022-12-04 23:42:59,854 [restartedMain] [com.czm.wormforwb.WormForWbApplication] [INFO] - Starting WormForWbApplication using Java 11.0.17 on DESKTOP-2VNG84M with PID 11208 (C:\Users\XmJ\IdeaProjects\wormForWB\target\classes started by XmJ in C:\Users\XmJ\IdeaProjects\wormForWB)
+2022-12-04 23:42:59,858 [restartedMain] [com.czm.wormforwb.WormForWbApplication] [INFO] - No active profile set, falling back to 1 default profile: "default"
+2022-12-04 23:42:59,908 [restartedMain] [org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor] [INFO] - Devtools property defaults active! Set 'spring.devtools.add-properties' to 'false' to disable
+2022-12-04 23:42:59,908 [restartedMain] [org.springframework.boot.devtools.env.DevToolsPropertyDefaultsPostProcessor] [INFO] - For additional web related logging consider setting the 'logging.level.web' property to 'DEBUG'
+2022-12-04 23:43:00,622 [restartedMain] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer] [INFO] - Tomcat initialized with port(s): 8080 (http)
+2022-12-04 23:43:00,699 [restartedMain] [org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext] [INFO] - Root WebApplicationContext: initialization completed in 790 ms
+2022-12-04 23:43:01,179 [restartedMain] [org.springframework.boot.devtools.autoconfigure.OptionalLiveReloadServer] [INFO] - LiveReload server is running on port 35729
+2022-12-04 23:43:01,208 [restartedMain] [org.springframework.boot.web.embedded.tomcat.TomcatWebServer] [INFO] - Tomcat started on port(s): 8080 (http) with context path ''
+2022-12-04 23:43:01,221 [restartedMain] [com.czm.wormforwb.WormForWbApplication] [INFO] - Started WormForWbApplication in 1.639 seconds (JVM running for 2.693)
