@@ -5,7 +5,6 @@ import com.sun.mail.util.MailSSLSocketFactory;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
@@ -15,16 +14,12 @@ import java.util.Properties;
 
 /**
  * 邮件发送服务
- *
  * @author Slience
  * @date 2022/3/10 13:32
  **/
 @Service
 @Slf4j
 public class EmailSendServiceImpl implements EmailSendService {
-
-    @Value("${sender.email}")
-    private Boolean emailSender;
 
     //邮箱服务
     @Value("${email.server}")
@@ -48,23 +43,19 @@ public class EmailSendServiceImpl implements EmailSendService {
 
     @Override
     public Boolean sendEmail(String title, String content) {
-        // 未配置 或者配置是不发送
-        if (ObjectUtils.isEmpty(emailSender) || !emailSender) {
-            return false;
-        }
 
         log.debug("------邮件服务开始------");
 
         //创建一个配置文件并保存
         Properties properties = new Properties();
 
-        properties.setProperty("mail.host", emailServer);
+        properties.setProperty("mail.host",emailServer);
 
-        properties.setProperty("mail.transport.protocol", emailAgreement);
+        properties.setProperty("mail.transport.protocol",emailAgreement);
 
-        properties.setProperty("mail.smtp.auth", "true");
+        properties.setProperty("mail.smtp.auth","true");
 
-        try {
+        try{
             //QQ存在一个特性设置SSL加密
             MailSSLSocketFactory sf = new MailSSLSocketFactory();
             sf.setTrustAllHosts(true);
@@ -75,7 +66,7 @@ public class EmailSendServiceImpl implements EmailSendService {
             Session session = Session.getDefaultInstance(properties, new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(senderEmail, authorizationCode);
+                    return new PasswordAuthentication(senderEmail,authorizationCode);
                 }
             });
 
@@ -86,7 +77,7 @@ public class EmailSendServiceImpl implements EmailSendService {
             Transport transport = session.getTransport();
 
             //连接服务器
-            transport.connect(emailServer, senderEmail, authorizationCode);
+            transport.connect(emailServer,senderEmail,authorizationCode);
 
             //创建邮件对象
             MimeMessage mimeMessage = new MimeMessage(session);
@@ -95,22 +86,22 @@ public class EmailSendServiceImpl implements EmailSendService {
             mimeMessage.setFrom(new InternetAddress(senderEmail));
 
             //邮件接收人
-            mimeMessage.setRecipient(Message.RecipientType.TO, new InternetAddress(getterEmail));
+            mimeMessage.setRecipient(Message.RecipientType.TO,new InternetAddress(getterEmail));
 
             //邮件标题
             mimeMessage.setSubject(title);
 
             //邮件内容
-            mimeMessage.setContent(content, "text/html;charset=UTF-8");
+            mimeMessage.setContent(content,"text/html;charset=UTF-8");
 
             //发送邮件
-            transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
+            transport.sendMessage(mimeMessage,mimeMessage.getAllRecipients());
 
             //关闭连接
             transport.close();
             log.debug("------邮件发送成功，服务结束------");
             return true;
-        } catch (Exception e) {
+        }catch (Exception e){
             log.error("邮件发送抛出异常：" + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
             return false;
         }

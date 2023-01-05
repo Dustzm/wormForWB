@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -31,7 +30,7 @@ public class DateUtils {
             Date date = normalFormat.parse(normalDate);
             return strFormat.format(date);
         } catch (ParseException e) {
-            log.error("时间转换抛出异常：" + e.getMessage() + "\n" + Arrays.toString(e.getStackTrace()));
+            log.error("时间转换抛出异常：" + e.getMessage() + "\n" + e.getStackTrace());
             return null;
         }
     }
